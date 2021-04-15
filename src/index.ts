@@ -4,8 +4,10 @@ import cookieParser from 'cookie-parser';
 import cookieSession from 'cookie-session';
 import logger from 'morgan';
 import sassMiddleware from 'node-sass-middleware';
-import sha from 'js-sha256';
 import { v4 as uuidv4 } from 'uuid';
+import config from './config/config';
+import Fingerprint from './modules/Fingerprint';
+import ClickInfo from './types/ClickInfo';
 
 const app = express();
 
@@ -16,7 +18,7 @@ app.set('view engine', 'pug');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+app.use(cookieParser(config.session.secureKey));
 app.use(sassMiddleware({
   src: path.join(__dirname, 'public'),
   dest: path.join(__dirname, 'public'),
@@ -25,10 +27,9 @@ app.use(sassMiddleware({
 }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.set('trust proxy', 1);
 app.use(cookieSession({
   name: 'session',
-  keys: ['key1', 'key2'],
+  secret: config.session.secureKey,
   maxAge: 600000
 }));
 app.use(function (req, res, next) {
@@ -36,20 +37,34 @@ app.use(function (req, res, next) {
   next();
 });
 
+app.use(Fingerprint);
+
 app.use('/', function (req, res, next) {
-  const uid = req.cookies.uid ?? uuidv4();
+  const uid = (req.signedCookies.uid) ?? uuidv4();
   res.cookie('uid', uid, {
-    maxAge: 1000 * 60 * 60 * 24 * 30 * 24
+    maxAge: config.cookie.uidMaxAge,
+    signed: true
   });
 
-  res.cookie('clid', sha.sha224(uuidv4()), {
-    maxAge: 1000 * 60 * 60 * 24 * 30 * 24
+  res.cookie('sfp', req.fingerprint?.hash, {
+    maxAge: config.cookie.fpMaxAge,
+    signed: true
   });
   next();
 });
 
 app.get('/', (req, res) => {
-  res.render('index', { title: 'Express' });
+  res.render('index', {
+    title: 'Express',
+    clid: uuidv4(),
+    sfp: req.fingerprint?.hash
+  });
+});
+app.get('/t', (req, res) => {
+  const ui = new ClickInfo();
+  ui.parseReq(req);
+  console.log(ui);
+  res.send('ok');
 });
 
 app.listen(3000, () => {

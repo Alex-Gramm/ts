@@ -1,5 +1,21 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome1a to #{title}
+    h1= title
+    p Welcome1a to #{title}
+    script.
+        function initfp() {
+            // Initialize an agent at application startup.
+            const fpPromise = FingerprintJS.load();
+
+            // Get the visitor identifier when you need it.
+            fpPromise
+                .then(fp => fp.get())
+                .then(result => {
+                    const clid = '#{clid}'
+                    const sfp = '#{sfp}'
+                    const cfp = result.visitorId;
+                    window.location = '/t?clid='+clid+'&cfp='+cfp+"&sfp="+sfp;
+                });
+        }
+    script(src="/js/fp.min.js" onload='initfp()')

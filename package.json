@@ -2,7 +2,7 @@
   "name": "ts",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "src/index.js",
   "scripts": {
     "start": "npx ts-node src/index.ts",
     "build": "tsc --project ./",
@@ -16,10 +16,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@fingerprintjs/fingerprintjs": "^3.1.0",
     "@maxmind/geoip2-node": "^2.3.1",
     "cookie-parser": "~1.4.4",
     "cookie-session": "^1.4.0",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "express-fingerprint": "^1.2.2",
     "http-errors": "~1.6.3",
     "js-sha256": "^0.9.0",
     "morgan": "^1.10.0",
