@@ -1,0 +1,44 @@
+version: "3.6"
+services:
+  mysql:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password --innodb_use_native_aio=0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+      MYSQL_USER: dev
+      MYSQL_PASSWORD: dev
+      MYSQL_DATABASE: ts
+    ports:
+      - 3307:3306
+    volumes:
+      - ./docker/data/mysql:/var/lib/mysql
+  redis:
+    image: redis
+    restart: always
+    volumes:
+      - ./docker/data/redis:/data
+    ports:
+      - 6379:6379
+  clickhouse:
+    image: yandex/clickhouse-server
+    volumes:
+      - ./docker/data/clickhouse:/var/lib/clickhouse
+      - ./docker/config/clickhouse/users.xml:/etc/clickhouse-server/users.xml
+    ports:
+      - 8123:8123
+  tabix:
+    image: spoonest/clickhouse-tabix-web-client
+    ports:
+    - 8081:80
+  app:
+    image: node
+    volumes:
+    - ./:/app
+    env_file: .env
+    working_dir: /app
+    ports:
+      - "3000:3000"
+    command: node_modules/.bin/nodemon src/index.js
+    depends_on:
+      - redis
