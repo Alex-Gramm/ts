@@ -4,8 +4,6 @@ import path from 'path';
 import ReaderModel from '@maxmind/geoip2-node/dist/src/readerModel';
 export const METHOD_GET = 'get';
 
-export const EVENT_INIT = 'init';
-export const EVENT_REQ = 'req';
 function getRandomInt (max: number) {
   return Math.floor(Math.random() * max);
 }
@@ -31,8 +29,11 @@ class ClickInfo {
   public headers: object = { }
   public query: object = { }
 
+  // Geo
+  public city: string | undefined = '';
+  public country: string | undefined = ''
+
   public method: string = METHOD_GET
-  public event: string = EVENT_INIT
 
   parseReq (req: Request) {
     this.uid = req.uid ?? '';
@@ -52,7 +53,9 @@ class ClickInfo {
 
     try {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const city = r?.city(ip);
+      const cityData = r?.city(ip);
+      this.city = cityData?.city?.names.en;
+      this.country = cityData?.country?.isoCode;
     } catch (e) {
 
     }

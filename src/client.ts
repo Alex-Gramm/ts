@@ -17,6 +17,7 @@ Sentry.init({
   integrations: [
     // enable HTTP calls tracing
     new Sentry.Integrations.Http({ tracing: true }),
+    new Sentry.Integrations.LinkedErrors(),
     // enable Express.js middleware tracing
     new Tracing.Integrations.Express({ app }),
     new Tracing.Integrations.Mysql() // Add this integration
@@ -31,7 +32,6 @@ Sentry.init({
 app.use(Sentry.Handlers.requestHandler());
 // TracingHandler creates a trace for every incoming request
 app.use(Sentry.Handlers.tracingHandler());
-app.use(Sentry.Handlers.errorHandler());
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

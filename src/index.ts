@@ -6,6 +6,7 @@ import Cache from './modules/Cache/Cache';
 import app from './client';
 import CheckPipeline from './types/CheckPipeline';
 import ClickHelper from './helper/ClickHelper';
+import * as Sentry from '@sentry/node';
 
 app.get('/', (req, res) => {
   const ui = new ClickInfo();
@@ -24,6 +25,7 @@ app.get('/', (req, res) => {
 });
 app.get('/t', (req, res) => {
   const ui = new ClickInfo();
+  Sentry.setContext('client-info', ui);
   ui.parseReq(req);
   ui.event = EVENT_REQ;
   Eventlog.push(ui);
@@ -43,6 +45,7 @@ app.get('/t', (req, res) => {
   // console.log(pipeline);
 });
 
+app.use(Sentry.Handlers.errorHandler());
 app.listen(3000, () => {
   console.log('The application is listening on port 3000!');
 });
