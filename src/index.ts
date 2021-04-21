@@ -7,33 +7,32 @@ import app from './client';
 import CheckPipeline from './types/CheckPipeline';
 import ClickHelper from './helper/ClickHelper';
 import * as Sentry from '@sentry/node';
+import UserInfo from './types/UserInfo';
 
 app.get('/', (req, res) => {
-  const ui = new ClickInfo();
-  ui.parseReq(req);
+  const ui = new ClickInfo(req.userInfo);
   ui.event = EVENT_INIT;
-  ui.clid = uuidv4();
+  ui.userInfo.clid = uuidv4();
 
   Eventlog.push(ui);
   Cache.set(ClickHelper.getCacheKey(ui), ui);
 
   res.render('index', {
     title: 'Express',
-    clid: ui.clid,
+    clid: ui.userInfo.clid,
     sfp: req.fingerprint?.hash
   });
 });
 app.get('/t', (req, res) => {
-  const ui = new ClickInfo();
-  Sentry.setContext('client-info', ui);
-  ui.parseReq(req);
+  const ui = new ClickInfo(req.userInfo);
+
   ui.event = EVENT_REQ;
   Eventlog.push(ui);
 
   Cache.get(ClickHelper.getCacheKey(ui)).then(function (oui) {
     const data = new PipelineData(ui);
     if (oui instanceof Object) {
-      data.firstClickInfo = Object.assign(new ClickInfo(), oui);
+      data.firstClickInfo = Object.assign(new ClickInfo(new UserInfo()), oui);
     }
     const pipeline = new CheckPipeline(data);
 

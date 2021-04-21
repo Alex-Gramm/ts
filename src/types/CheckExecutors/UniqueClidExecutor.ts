@@ -10,8 +10,8 @@ class UniqueClidExecutor implements ExecutorInterface {
     return new Promise((resolve) => {
       const result = new CheckResult();
       result.provider = typeof this;
-      Cache.get(CACHEPREFIX + data.cliclInfo.clid).then(value => {
-        if (value === data.cliclInfo.clid) {
+      Cache.get(CACHEPREFIX + data.cliclInfo.userInfo.clid).then(value => {
+        if (value === data.cliclInfo.userInfo.clid) {
           result.isBot = true;
           result.info = 'Not unique clid';
         }

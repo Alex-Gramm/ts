@@ -6,7 +6,7 @@ class TestExecutor implements ExecutorInterface {
   execute (data: PipelineData): Promise<CheckResult> {
     return new Promise((resolve) => {
       const result = new CheckResult();
-      if (data.cliclInfo?.ip === '127.0.0.1') {
+      if (data.cliclInfo?.userInfo.ip === '127.0.0.1') {
         result.isBot = true;
         result.info = 'Local user!';
       }

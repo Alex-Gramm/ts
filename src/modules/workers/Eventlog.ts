@@ -5,7 +5,7 @@ import config from '../../config/config';
 let opts = {
   url: 'http://127.0.0.1',
   port: 8123,
-  debug: false,
+  debug: true,
   basicAuth: false,
   isUseGzip: false,
   format: 'json', // "json" || "csv" || "tsv"
@@ -22,30 +22,43 @@ let events: ClickInfo[] = [];
 
 const queries = [
   'drop table events',
-  `CREATE TABLE IF NOT EXISTS events (
-  date Date,
-  time Timestamp,
-  event Enum('init' = 1, 'req' = 2),
-  uid String,
-  clid String,
-  sfp String,
-  sfp2 String,
-  cfp String,
-  userAgent String,
-  ip String,
-  ipNum UInt32,
-  ips Array(UInt32),
-  method Enum('GET' = 1, 'HEAD' = 2, 'POST' = 3, 'PUT' = 4, 'DELETE' = 5, 'CONNECT' = 6, 'OPTIONS' = 7, 'TRACE' = 8, 'PATCH' = 9),
-  headers Nested (
-    key String,
-    value String
-  ),
-  query Nested (
-    key String,
-    value String
-  )
-  )
-  ENGINE=MergeTree(date, (event, time), 8192)`
+  `CREATE TABLE IF NOT EXISTS events
+(
+    date   Date,
+    time   Timestamp,
+    event  Enum ('init' = 1, 'req' = 2),
+    userInfo Nested (
+        uid String,
+        clid String,
+        sfp String,
+        sfp2 String,
+        cfp String,
+        userAgent String,
+        ip IPv4,
+        ipNum UInt32,
+        ips Array(UInt32),
+        city String,
+        country String,
+        countryIso String,
+        accuracy Double,
+        altitude Double,
+        altitudeAccuracy Double,
+        heading Double,
+        latitude Double,
+        longitude Double,
+        headers Nested (
+            key String,
+            value String
+        ),
+        query Nested (
+            key String,
+            value String
+        )
+    ),
+    method Enum ('GET' = 1, 'HEAD' = 2, 'POST' = 3, 'PUT' = 4, 'DELETE' = 5, 'CONNECT' = 6, 'OPTIONS' = 7, 'TRACE' = 8, 'PATCH' = 9)
+
+)
+    ENGINE = MergeTree(date, (event, time), 8192)`
 ];
 
 for (const query of queries) {
@@ -55,8 +68,10 @@ for (const query of queries) {
 async function save () {
   if (events.length > 0) {
     console.log('Send ' + events.length + ' messages');
-    const ws = clickhouse.insert(`INSERT INTO events (date, time, event, uid, clid, sfp, sfp2, cfp, userAgent,
-     ip, ipNum, ips, method,headers.key, headers.value, query.key, query.value) `).stream();
+    const ws = clickhouse.insert(`INSERT INTO events (date, time, event, method, userInfo.uid, userInfo.clid, userInfo.sfp, userInfo.sfp2, userInfo.cfp, userInfo.userAgent,
+     userInfo.ip, userInfo.ipNum, userInfo.ips, userInfo.city, userInfo.country, userInfo.countryIso,
+      userInfo.accuracy, userInfo.altitude, userInfo.altitudeAccuracy, userInfo.heading, userInfo.latitude, userInfo.longitude,
+     userInfo.headers.key, userInfo.headers.value, userInfo.query.key, userInfo.query.value) `).stream();
     const eventsPack = events;
     events = [];
 
@@ -66,22 +81,33 @@ async function save () {
         e.date.toISOString().split('T')[0],
         Math.round(e.date.getTime() / 1000),
         e.event,
-        e.uid,
-        e.clid,
-        e.sfp,
-        e.sfp2,
-        e.cfp,
-        e.userAgent,
-        e.ip,
-        0,
-        e.ips,
         e.method,
+        e.userInfo?.uid,
+        e.userInfo?.clid,
+        e.userInfo?.sfp,
+        e.userInfo?.sfp2,
+        e.userInfo?.cfp,
+        e.userInfo?.userAgent,
+        e.userInfo?.ip,
+        0,
+        e.userInfo?.ips,
+        e.userInfo?.city,
+        e.userInfo?.country,
+        e.userInfo?.countryIso,
+
+        e.userInfo?.location.accuracy,
+        e.userInfo?.location.altitude,
+        e.userInfo?.location.altitudeAccuracy,
+        e.userInfo?.location.heading,
+        e.userInfo?.location.latitude,
+        e.userInfo?.location.longitude,
+
         /* Object.keys(e.headers),
         Object.values(e.headers), */
         [],
         [],
-        Object.keys(e.query),
-        Object.values(e.query)
+        Object.keys(e.userInfo.query),
+        Object.values(e.userInfo.query)
       ];
       await ws.writeRow(data);
     }

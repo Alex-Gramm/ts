@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 import logger from 'morgan';
 import * as Sentry from '@sentry/node';
 import * as Tracing from '@sentry/tracing';
+import UserInfo from './types/UserInfo';
 
 const app = express();
 
@@ -72,12 +73,16 @@ app.use(function (req, res, next) {
     maxAge: config.cookie.fpMaxAge,
     signed: true
   });
-  // Cache.set('qwe', req.fingerprint?.hash, 300000);
+  // Parse user info
+
+  req.userInfo = new UserInfo();
+  req.userInfo.parseReq(req);
   next();
 });
 
 app.use(function (req, res, next) {
   Sentry.setUser({ id: req.uid, ip_address: req.ip });
+  Sentry.setContext('userInfo', req.userInfo);
   next();
 });
 
