@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 export const EVENT_INIT = 'init';
 export const EVENT_REQ = 'req';
 
-export const METHOD_GET = 'get';
+export const METHOD_GET = 'GET';
 
 class ClickInfo {
   public reqid = uuidv4();

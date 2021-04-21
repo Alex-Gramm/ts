@@ -42,3 +42,5 @@ services:
     command: node_modules/.bin/nodemon src/index.js
     depends_on:
       - redis
+      - clickhouse
+      - mysql
