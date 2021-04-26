@@ -1,21 +1,14 @@
 import cacheManager from 'cache-manager';
 import redisStore from 'cache-manager-ioredis';
+import config from '../../config/config';
 
 const redisCache = cacheManager.caching({
   store: redisStore,
-  host: 'redis', // default value
-  port: 6379, // default value
-  password: '',
-  db: 0,
+  host: config.connection.redis.host, // default value
+  port: config.connection.redis.port, // default value
+  password: config.connection.redis.password,
+  db: config.connection.redis.db,
   ttl: 600
-});
-
-// listen for redis connection error event
-const redisClient = redisCache.store.getClient();
-
-redisClient.on('error', (error) => {
-  // handle error here
-  console.log(error);
 });
 
 export default redisCache;

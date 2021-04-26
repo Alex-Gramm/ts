@@ -15,7 +15,7 @@ app.get('/', (req, res) => {
   ui.userInfo.clid = uuidv4();
 
   Eventlog.push(ui);
-  Cache.set(ClickHelper.getCacheKey(ui), ui);
+  Cache.set<ClickInfo>(ClickHelper.getCacheKey(ui), ui);
 
   res.render('index', {
     title: 'Express',
@@ -29,15 +29,13 @@ app.get('/t', (req, res) => {
   ui.event = EVENT_REQ;
   Eventlog.push(ui);
 
-  Cache.get(ClickHelper.getCacheKey(ui)).then(function (oui) {
+  Cache.get<ClickInfo>(ClickHelper.getCacheKey(ui)).then(function (oui) {
     const data = new PipelineData(ui);
-    if (oui instanceof Object) {
-      data.firstClickInfo = Object.assign(new ClickInfo(new UserInfo()), oui);
-    }
+    data.firstClickInfo = Object.assign(new ClickInfo(new UserInfo()), oui);
     const pipeline = new CheckPipeline(data);
 
     pipeline.execute().then(() => {
-      res.send('ok');
+      res.send(pipeline);
     });
   }).catch(e => console.log(e));
 

@@ -1,7 +1,15 @@
 import * as dotenv from 'dotenv';
+import deepmerge from 'deepmerge';
 dotenv.config();
 
-export default {
+let config = require('./common.json');
+
+if (process.env.env !== undefined) {
+  const env = require('./' + process.env.env + '.json');
+  config = deepmerge.all([config, env]);
+}
+export default config;
+/* {
   session: {
     secureKey: process.env.SESSION_SECURE_KEY ?? 'secretKey'
   },
@@ -21,3 +29,4 @@ export default {
     }
   }
 };
+*/

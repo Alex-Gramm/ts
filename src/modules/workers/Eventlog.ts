@@ -5,9 +5,9 @@ import config from '../../config/config';
 import { IPv4 } from 'ip-num';
 
 let opts = {
-  url: 'http://127.0.0.1',
-  port: 8123,
-  debug: true,
+  url: config.eventlog.opts.url,
+  port: config.eventlog.opts.port,
+  debug: false,
   basicAuth: false,
   isUseGzip: false,
   format: 'json', // "json" || "csv" || "tsv"
@@ -40,6 +40,7 @@ const queries = [
     ip IPv6,
     ipNum UInt32,
     ips Array(UInt32),
+    asn UInt64,
     city String,
     country String,
     countryIso String,
@@ -71,7 +72,7 @@ async function save () {
   if (events.length > 0) {
     console.log('Send ' + events.length + ' messages');
     const ws = clickhouse.insert(`INSERT INTO events (date, time, event, reqid, method, uid, clid, sfp, sfp2, cfp, userAgent,
-     ip, ipNum, ips, city, country, countryIso,
+     ip, ipNum, ips, asn, city, country, countryIso,
       accuracy, altitude, altitudeAccuracy, heading, latitude, longitude,
      headers.key, headers.value, query.key, query.value) `).stream();
     const eventsPack = events;
@@ -94,6 +95,7 @@ async function save () {
         prepareIpAddr(e.userInfo?.ip),
         0,
         e.userInfo?.ips,
+        e.userInfo.asn,
         e.userInfo?.city,
         e.userInfo?.country,
         e.userInfo?.countryIso,
@@ -112,7 +114,6 @@ async function save () {
         Object.keys(e.userInfo.query),
         Object.values(e.userInfo.query)
       ];
-      console.log(data);
       await ws.writeRow(data);
     }
 

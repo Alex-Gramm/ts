@@ -1,15 +1,16 @@
 import ExecutorInterface from './ExecutorInterface';
 import PipelineData from '../PipelineData';
 import CheckResult from '../CheckResult';
+import isbot from 'isbot';
 
-class TestExecutor implements ExecutorInterface {
+class BotExecutor implements ExecutorInterface {
   execute (data: PipelineData): Promise<CheckResult> {
     return new Promise((resolve) => {
       const result = new CheckResult();
-      result.provider = 'TestExecutor';
-      if (data.cliclInfo?.userInfo.ip === '127.0.0.1') {
+      result.provider = 'BotExecutor';
+      if (isbot(data.cliclInfo.userInfo.userAgent ?? '')) {
         result.isBot = true;
-        result.info = 'Local user!';
+        result.info = 'Bot detected';
       }
 
       resolve(result);
@@ -17,4 +18,4 @@ class TestExecutor implements ExecutorInterface {
   }
 }
 
-export default new TestExecutor();
+export default new BotExecutor();

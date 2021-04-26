@@ -9,12 +9,13 @@ class UniqueClidExecutor implements ExecutorInterface {
   execute (data: PipelineData): Promise<CheckResult> {
     return new Promise((resolve) => {
       const result = new CheckResult();
-      result.provider = typeof this;
+      result.provider = 'UniqueClidExecutor';
       Cache.get(CACHEPREFIX + data.cliclInfo.userInfo.clid).then(value => {
-        if (value === data.cliclInfo.userInfo.clid) {
+        if (value) {
           result.isBot = true;
           result.info = 'Not unique clid';
         }
+        Cache.set(CACHEPREFIX + data.cliclInfo.userInfo.clid, true);
       }).catch(reason => {
         result.isBot = true;
         result.info = reason.toString();

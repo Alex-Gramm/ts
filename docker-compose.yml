@@ -10,7 +10,7 @@ services:
       MYSQL_PASSWORD: dev
       MYSQL_DATABASE: ts
     ports:
-      - 3307:3306
+      - 3318:3306
     volumes:
       - ./docker/data/mysql:/var/lib/mysql
   redis:

@@ -14,7 +14,8 @@ import UserInfo from './types/UserInfo';
 const app = express();
 
 Sentry.init({
-  dsn: 'http://033237d00f1c40148eec92f9026aa831@sentry.rtbat.net:9000/2',
+  dsn: 'http://033237d00f1c40148eec92f9026aa831@sentry.rtbat.net/2',
+  environment: process.env.env,
   integrations: [
     // enable HTTP calls tracing
     new Sentry.Integrations.Http({ tracing: true }),
@@ -27,7 +28,7 @@ Sentry.init({
   // Set tracesSampleRate to 1.0 to capture 100%
   // of transactions for performance monitoring.
   // We recommend adjusting this value in production
-  tracesSampleRate: 1.0
+  tracesSampleRate: 0.1
 });
 
 app.use(Sentry.Handlers.requestHandler());

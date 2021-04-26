@@ -1,0 +1,26 @@
+{
+
+  "connection": {
+    "mysql": {
+      "database": "ts",
+      "host": "127.0.0.1",
+      "port": 3318,
+      "dialect": "mysql",
+      "username": "dev",
+      "password": "dev"
+    },
+    "redis": {
+      "port": 6379,
+      "host": "127.0.0.1",
+      "family": 4,
+      "password": "",
+      "db": 0
+    }
+  },
+  "eventlog": {
+    "opts": {
+      "url": "http://127.0.0.1",
+      "port": 8123
+    }
+  }
+}

@@ -18,7 +18,7 @@ class RedisCache implements CacheInterface {
 
   set (key: string, value: any, lifetime: number | null) {
     lifetime = lifetime ?? config.cache.lifetime;
-    return promisify(this.client.psetex).bind(this.client)(key, lifetime * 1000, JSON.stringify(value));
+    return promisify(this.client.psetex).bind(this.client)(key, (lifetime ?? 60 * 60) * 1000, JSON.stringify(value));
   }
 }
 

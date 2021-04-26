@@ -2,14 +2,14 @@ import ExecutorInterface from './ExecutorInterface';
 import PipelineData from '../PipelineData';
 import CheckResult from '../CheckResult';
 
-class TestExecutor implements ExecutorInterface {
+class DifferentIpExecutor implements ExecutorInterface {
   execute (data: PipelineData): Promise<CheckResult> {
     return new Promise((resolve) => {
       const result = new CheckResult();
-      result.provider = 'TestExecutor';
-      if (data.cliclInfo?.userInfo.ip === '127.0.0.1') {
+      result.provider = 'DifferentIpExecutor';
+      if (data.cliclInfo?.userInfo.ip !== data.firstClickInfo?.userInfo.ip) {
         result.isBot = true;
-        result.info = 'Local user!';
+        result.info = 'Different Ips';
       }
 
       resolve(result);
@@ -17,4 +17,4 @@ class TestExecutor implements ExecutorInterface {
   }
 }
 
-export default new TestExecutor();
+export default new DifferentIpExecutor();
